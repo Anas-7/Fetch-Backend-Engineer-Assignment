@@ -24,9 +24,9 @@ Other option is to run through Docker:
 
 `cd easy-implementation`
 
-`docker-compose build --no-cache`
+`docker build -t restapi .`
 
-`docker-compose up`
+`docker run -p 9090:9090 restapi`
 
 Use **Postman** with URL `localhost:9090` to access the GET and POST endpoints. An example from assignment with output is attached below:
 

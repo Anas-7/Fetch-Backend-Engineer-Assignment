@@ -74,5 +74,5 @@ func main() {
 	router := gin.Default()
 	router.GET("/receipts/:Id/points", getPoints)
 	router.POST("/receipts/process", addReceipt)
-	router.Run("localhost:9090")
+	router.Run("0.0.0.0:9090") // Changed from localhost to 0.0.0.0 for docker
 }
