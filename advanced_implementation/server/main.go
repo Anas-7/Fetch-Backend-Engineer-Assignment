@@ -89,7 +89,7 @@ func addReceipt(ch *amqp.Channel, queueName string) gin.HandlerFunc {
 }
 
 func main() {
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	conn, err := amqp.Dial("amqp://guest:guest@rabbitmq:5672/") // Changed it for docker compose. It was "amqp://guest:guest@localhost:5672/"
 	if err != nil {
 		panic(err)
 	}
@@ -158,6 +158,6 @@ func main() {
 	router.GET("/receipts/:Id/points", getPoints)
 	router.POST("/receipts/process", addReceipt(ch, q.Name))
 
-	router.Run("localhost:9090")
+	router.Run("0.0.0.0:9090")
 
 }

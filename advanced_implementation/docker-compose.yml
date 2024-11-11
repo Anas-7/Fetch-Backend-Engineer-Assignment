@@ -1,0 +1,52 @@
+version: "3.9"
+services:
+  rabbitmq:
+    image: rabbitmq:4.0-management
+    container_name: rabbitmq
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "ping" ] # Need to ensure rabbitMQ is up and running before starting server and message_queue
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: server
+    working_dir: /root/server
+    command: [ "/bin/sh", "-c", "mkdir -p ../badger/data && ./server" ]
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+    ports:
+      - "9090:9090"
+    volumes:
+      - badger-data:/root/badger/data # Shared volume for badger
+
+  message_queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: message_queue
+    working_dir: /root/message_queue
+    command: [ "/bin/sh", "-c", "mkdir -p ../badger/data && ./message_queue" ]
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+    volumes:
+      - badger-data:/root/badger/data # Shared volume for badger
+
+# Allows persisting data between container restarts
+volumes:
+  badger-data:

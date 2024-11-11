@@ -24,7 +24,7 @@ type Receipt struct {
 }
 
 func main() {
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	conn, err := amqp.Dial("amqp://guest:guest@rabbitmq:5672/") // Changed it for docker compose. It was "amqp://guest:guest@localhost:5672/"
 	if err != nil {
 		panic(err)
 	}
@@ -37,9 +37,19 @@ func main() {
 		panic(err)
 	}
 	defer ch.Close()
-
-	msgs, err := ch.Consume(
+	q, err := ch.QueueDeclare( // QueueDeclare is used to create a new queue or initialize an existing one
 		"POST_receipts",
+		false,
+		false,
+		false,
+		false,
+		nil,
+	)
+	if err != nil {
+		panic(err)
+	}
+	msgs, err := ch.Consume(
+		q.Name,
 		"",
 		true,
 		false,
