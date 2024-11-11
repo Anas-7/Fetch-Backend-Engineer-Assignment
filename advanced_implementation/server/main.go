@@ -12,7 +12,6 @@ import (
 )
 
 type Item struct {
-	Id               string `json:"Id"`
 	ShortDescription string `json:"shortDescription"`
 	Price            string `json:"price"`
 }
@@ -43,7 +42,7 @@ func getPoints(context *gin.Context) {
 		context.IndentedJSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-	points, err := calculatePoints(Id)
+	points, err := calculatePoints(receipts[Id])
 	if err != nil {
 		context.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return

@@ -60,7 +60,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	deadQueue, err := ch.QueueDeclare(
+	deadLetterQueue, err := ch.QueueDeclare(
 		"failed_receipts",
 		false,
 		false,
@@ -86,9 +86,9 @@ func main() {
 			json.Unmarshal(d.Body, &receipt)
 			err := txn.Set([]byte(receipt.Id), d.Body)
 			if err != nil {
-				ch.Publish( // We can send this message to a dead queue so that we don't lose it
+				ch.Publish( // We can send this message to a dead letter queue so that we don't lose it
 					"",
-					deadQueue.Name,
+					deadLetterQueue.Name,
 					false,
 					false,
 					amqp.Publishing{
@@ -97,13 +97,13 @@ func main() {
 					},
 				)
 				// Send an alert to the admin/monitoring system as well
-				fmt.Println("CRITICAL: Error while saving receipt to database")
+				fmt.Println("CRITICAL: Error while saving receipt to dead letter queue")
 			}
 			err = txn.Commit()
 			if err != nil {
 				ch.Publish(
 					"",
-					deadQueue.Name,
+					deadLetterQueue.Name,
 					false,
 					false,
 					amqp.Publishing{

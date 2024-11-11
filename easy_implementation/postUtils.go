@@ -1,10 +1,22 @@
 package main
 
 import (
+	"math/rand"
 	"reflect"
 	"strconv"
 	"time"
 )
+
+func generateId(length int) string {
+	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	rand.Seed(time.Now().UnixNano())
+
+	result := make([]byte, length)
+	for i := range result {
+		result[i] = charset[rand.Intn(len(charset))]
+	}
+	return string(result)
+}
 
 func isValidDate(dateStr string) bool {
 	// dates can have leading zeros

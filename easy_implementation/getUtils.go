@@ -3,10 +3,8 @@ package main
 import (
 	"errors"
 	"math"
-	"math/rand"
 	"strconv"
 	"strings"
-	"time"
 	"unicode"
 )
 
@@ -87,19 +85,7 @@ func calculatePurchaseTimePoints(purchaseTime string) (int, error) {
 	return 0, nil
 }
 
-func generateId(length int) string {
-	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-	rand.Seed(time.Now().UnixNano())
-
-	result := make([]byte, length)
-	for i := range result {
-		result[i] = charset[rand.Intn(len(charset))]
-	}
-	return string(result)
-}
-
-func calculatePoints(Id string) (int, error) {
-	receipt := receipts[Id]
+func calculatePoints(receipt Receipt) (int, error) {
 	totalPoints := 0
 
 	retailerNamePoints := calculateRetailerNamePoints(receipt.Retailer)
