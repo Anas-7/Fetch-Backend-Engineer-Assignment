@@ -201,7 +201,7 @@ If we do `ls` inside we will see the executable that is already launched. Type t
 
 `ls -la`
 
-Note the **time and ID** that it displays for the file `0000.vlog` or something similar. Wait a minute and then send a POST request via Postman, and after running `ls -la` it can be observed that the time gets updated. This verifies claim 1 because the write to database is last part of the pipeline
+Note the **time** that it displays for the file `0000.vlog` or something similar. Wait a minute and then send a POST request via Postman (**note the ID we'll need it for claim 2**), and after running `ls -la` it can be observed that the time gets updated. This verifies claim 1 because the write to database is last part of the pipeline
 
 ![Updated timestamp after POST request](image-3.png)
 
