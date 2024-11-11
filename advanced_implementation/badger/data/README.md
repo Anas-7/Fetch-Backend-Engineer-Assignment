@@ -1,0 +1,1 @@
+### This is a placeholder as Git doesn't allow empty folders to be uploaded, and badger doesn't have permisssion to create directories on its own during program execution
