@@ -14,7 +14,7 @@ Extra libraries: [gin](https://github.com/gin-gonic/gin)
 
 There are two options after cloning the repository. First option is:
 
-`cd easy-implementation`
+`cd easy_implementation`
 
 `go mod download`
 
@@ -22,7 +22,7 @@ There are two options after cloning the repository. First option is:
 
 Other option is to run through Docker:
 
-`cd easy-implementation`
+`cd easy_implementation`
 
 `docker-compose build --no-cache`
 
@@ -128,7 +128,7 @@ Another reason was that when the server starts up, it should have information ab
 
 Clone the repository and type the following commands:
 
-`cd advanced-implementation`
+`cd advanced_implementation`
 
 `docker-compose build --no-cache`
 
