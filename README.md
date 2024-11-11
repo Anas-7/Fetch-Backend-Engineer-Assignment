@@ -14,7 +14,7 @@ Extra libraries: [gin](https://github.com/gin-gonic/gin)
 
 There are two options after cloning the repository. First option is:
 
-`cd easy_implementation`
+`cd basic_implementation`
 
 `go mod download`
 
@@ -22,7 +22,7 @@ There are two options after cloning the repository. First option is:
 
 Other option is to run through Docker:
 
-`cd easy_implementation`
+`cd basic_implementation`
 
 `docker build -t restapi .`
 
