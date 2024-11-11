@@ -159,7 +159,7 @@ It will be helpful to describe the implementation in a broad manner first.
 2. Accesses/creates a `POST_receipts` queue and creates a channel to be able to publish messages to it
 3. Accesses the DB to obtain data about existing receipts and populate the `receipts` map. DB.View ensures it is strictly read-only
 4. When a POST request is validated the JSON is marshalled and sent to the `POST_receipts` queue if there is no error
-5. If there is an error, then it means our consumer won't get messages and we send an alert. To prioritize not losing data over response speed I chose to write it in badgerDB. Ideally, there should have been locks implemented to avoid concurrency issues. Another solution could be to write the data locally, and then upload it to message queue once its back up.
+5. If there is an error, then it means our consumer won't get messages and we send an alert. I haven't handled the case for queue failure here other than alert, but to prioritize not losing data over response speed I will choose to write it in badgerDB. Ideally, there should have been locks implemented to avoid concurrency issues. Another solution could be to write the data locally, and then upload it to message queue once its back up.
 6. Add the validated receipt to the receipts map to ensure the GET requests work
 
 #### Consumer

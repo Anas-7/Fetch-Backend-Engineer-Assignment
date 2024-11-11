@@ -8,6 +8,7 @@ import (
 	"github.com/streadway/amqp"
 )
 
+// Declaring the structure of the receipt and item
 type Item struct {
 	Id               string `json:"Id"`
 	ShortDescription string `json:"shortDescription"`
@@ -37,7 +38,7 @@ func main() {
 		panic(err)
 	}
 	defer ch.Close()
-	q, err := ch.QueueDeclare( // QueueDeclare is used to create a new queue or initialize an existing one
+	q, err := ch.QueueDeclare( // Consuming from the POST_receipts queue with server being the publisher
 		"POST_receipts",
 		false,
 		false,
@@ -60,7 +61,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	deadLetterQueue, err := ch.QueueDeclare(
+	deadLetterQueue, err := ch.QueueDeclare( // Create a new queue or access an existing one
 		"failed_receipts",
 		false,
 		false,
@@ -78,7 +79,7 @@ func main() {
 	}
 	defer db.Close()
 
-	fetchMsg := make(chan bool)
+	fetchMsg := make(chan bool) // Channel to fetch messages
 	go func() {
 		for d := range msgs {
 			txn := db.NewTransaction(true)

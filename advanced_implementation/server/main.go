@@ -11,6 +11,7 @@ import (
 	"github.com/streadway/amqp"
 )
 
+// Declaring the structure of the receipt and item
 type Item struct {
 	ShortDescription string `json:"shortDescription"`
 	Price            string `json:"price"`
@@ -25,6 +26,7 @@ type Receipt struct {
 	Total        string `json:"total"`
 }
 
+// Map to store the receipts in memory
 var receipts = map[string]Receipt{}
 
 func receiptExists(Id string) error {
@@ -35,6 +37,7 @@ func receiptExists(Id string) error {
 	return errors.New("no receipt found for that id")
 }
 
+// GET request handler to calculate the points of a receipt
 func getPoints(context *gin.Context) {
 	Id := context.Param("Id")
 	err := receiptExists(Id)
@@ -50,6 +53,7 @@ func getPoints(context *gin.Context) {
 	context.IndentedJSON(http.StatusOK, gin.H{"The number of points awarded are": points})
 }
 
+// POST request handler to publish a receipt to the RabbitMQ or add it to the database if the RabbitMQ is down
 func addReceipt(ch *amqp.Channel, queueName string) gin.HandlerFunc {
 	fn := func(context *gin.Context) {
 		var newReceipt Receipt
@@ -57,13 +61,14 @@ func addReceipt(ch *amqp.Channel, queueName string) gin.HandlerFunc {
 		newReceipt.Id = Id
 
 		decoder := json.NewDecoder(context.Request.Body)
-		decoder.DisallowUnknownFields()
+		decoder.DisallowUnknownFields() // Disallow unknown fields
 
 		err := decoder.Decode(&newReceipt)
 		if err != nil {
 			context.IndentedJSON(http.StatusBadRequest, gin.H{"error": "The receipt is invalid"})
 			return
 		}
+		// Validate the fields of the receipt
 		if !validateReceiptFields(newReceipt) {
 			context.IndentedJSON(http.StatusBadRequest, gin.H{"error": "The receipt is invalid. Check missing fields and ensure all values are strings"})
 			return
@@ -73,7 +78,7 @@ func addReceipt(ch *amqp.Channel, queueName string) gin.HandlerFunc {
 
 		receiptJSON, _ := json.Marshal(newReceipt)
 		// Publish the receipt to the RabbitMQ
-		ch.Publish(
+		err = ch.Publish(
 			"",
 			queueName,
 			false,
@@ -83,12 +88,16 @@ func addReceipt(ch *amqp.Channel, queueName string) gin.HandlerFunc {
 				Body:        receiptJSON,
 			},
 		)
+		if err != nil {
+			fmt.Println("Failed to publish the receipt to the RabbitMQ. Saving it to the database")
+			// Save the receipt to the database if the RabbitMQ is down
+		}
 	}
 	return gin.HandlerFunc(fn)
 }
 
 func main() {
-	conn, err := amqp.Dial("amqp://guest:guest@rabbitmq:5672/") // Changed it for docker compose. It was "amqp://guest:guest@localhost:5672/"
+	conn, err := amqp.Dial("amqp://guest:guest@rabbitmq:5672/") // Connect to RabbitMQ. Changed it for docker compose. It was "amqp://guest:guest@localhost:5672/"
 	if err != nil {
 		panic(err)
 	}
@@ -102,7 +111,7 @@ func main() {
 	}
 	defer ch.Close()
 
-	q, err := ch.QueueDeclare(
+	q, err := ch.QueueDeclare( // Declare a queue to store the receipts
 		"POST_receipts",
 		false,
 		false,
@@ -115,14 +124,16 @@ func main() {
 		fmt.Println("POST_requests queue is getting full")
 	}
 	if err != nil {
+		fmt.Println("Failed to declare a queue")
 		panic(err)
 	}
 	/**
-		not the best practice, but I am doing this to avoid using a tricker concurrency database
+		I understand it is not the best practice, but I am doing this to avoid using a trickier concurrency database
 		The idea is to have a map of receipts in memory and then write to the database as a different process, thus ensuring the fetch here remains read-only
 	**/
 	db, err := badger.Open(badger.DefaultOptions("../badger/data").WithBypassLockGuard(true))
 	if err != nil {
+		fmt.Println("Failed to open the database")
 		panic(err)
 	}
 	defer db.Close()
@@ -137,7 +148,7 @@ func main() {
 			k := item.Key()
 			err := item.Value(func(v []byte) error {
 				var receipt Receipt
-				json.Unmarshal(v, &receipt)
+				json.Unmarshal(v, &receipt) // Convert the byte slice to a receipt
 				receipts[string(k)] = receipt
 				return nil
 			})
