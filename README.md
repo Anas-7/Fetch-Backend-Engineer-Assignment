@@ -1,6 +1,6 @@
 # Fetch Backend Engineer Assignment
 
-This assignment is in two parts. Part 1 is the requirements as mentioned in the assignment link. Part 2 is implementation of concepts that I felt were relevant to job details and can possibly be included here, i.e., message queues and persistent storage. 
+This assignment is in two parts. Part 1 is the requirements as mentioned in the [assignment link](https://github.com/Anas-7/Fetch-Backend-Engineer-Assignment). Part 2 is implementation of concepts that I felt were relevant to job details and can possibly be included here, i.e., message queues and persistent storage. 
 
 To clarify early on, I have ensured that no database download will be required from the engineers who review it.
 
